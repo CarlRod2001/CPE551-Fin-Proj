@@ -1,2 +1,3 @@
-# CPE551-Fin-Proj
+# Flask_Blog
 Here is the YouTube Link: https://youtu.be/BpT2ToavHCI
+Repository CPE551-Fin-Proj has been renamed to Flask_Blog
