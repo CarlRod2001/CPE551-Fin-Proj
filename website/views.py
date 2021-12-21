@@ -12,17 +12,19 @@ def home():
     posts = Post.query.all()
     return render_template("home.html", user=current_user, posts=posts)
 
-
 @views.route("/create-post", methods=['GET', 'POST'])
 @login_required
 def create_post():
     if request.method == "POST":
         text = request.form.get('text')
+        apple = request.form.get('apple')
 
         if not text:
             flash('Post cannot be empty', category='error')
+        elif not apple:
+            flash('Title cannot be empty', category='error')
         else:
-            post = Post(text=text, author=current_user.id)
+            post = Post(text=text, apple=apple, author=current_user.id)
             db.session.add(post)
             db.session.commit()
             flash('Post created!', category='success')
@@ -44,9 +46,42 @@ def delete_post(id):
         db.session.delete(post)
         db.session.commit()
         flash('Post deleted.', category='success')
-
     return redirect(url_for('views.home'))
 
+
+@views.route("/edit-post/<id>", methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+    post = Post.query.filter_by(id=id).first()
+    
+    if not post:
+        flash("Post does not exist.", category='error')
+        return redirect(url_for('views.home'))
+
+    elif current_user.id != post.author:
+        flash('You do not have permission to delete this post.', category='error')
+        return redirect(url_for('views.home'))
+    
+    elif request.method == "POST":
+        text = request.form.get('text')
+        apple = request.form.get('apple')
+
+        if not text:
+            flash('Post cannot be empty', category='error')
+        elif not apple:
+            flash('Title cannot be empty', category='error')
+
+        else:
+            post.text = text
+            post.apple = apple
+            db.session.add(post)
+            db.session.commit()
+            flash('Post editted!', category='success')
+            return redirect(url_for('views.home'))
+
+    return render_template('create_post.html', user=current_user)
+
+   
 
 @views.route("/posts/<username>")
 @login_required
